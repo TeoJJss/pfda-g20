@@ -1,0 +1,32 @@
+# RStudio files
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Compiled files
+*.o
+*.so
+*.dll
+*.exe
+
+# Package-specific files
+*.Rproj
+*.Rproj.user/
+*.Rhistory
+*.RData
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+
+# Other common exclusions
+*.swp
+*.swo
+*.DS_Store
