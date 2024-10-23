@@ -1,0 +1,2 @@
+# Check for Missing Values #
+colSums(is.na(New_credit_risk_df))
