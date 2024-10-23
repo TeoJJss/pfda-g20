@@ -1,0 +1,8 @@
+# Check for duplicates #
+nrow(credit_risk_df)# Show how many records this data set has
+sum(duplicated(credit_risk_df))# Show the count of duplicated records
+nrow(unique(credit_risk_df))# Show the count of unique records
+nrow(distinct(credit_risk_df))# Show the count of distinct records
+
+New_credit_risk_df<- unique(credit_risk_df)# Save into another version without duplicates
+print(New_credit_risk_df)
