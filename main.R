@@ -113,3 +113,83 @@ levels(credit_risk_df$credit_history)
 levels(credit_risk_df$credit_history)
 levels(credit_risk_df$credit_history)
 
+
+
+## OUTLIER DETECTION & HANDLING ##
+
+# detect outlier for numeric data
+numeric_cols <- names(credit_risk_df)[sapply(credit_risk_df, is.numeric)]
+numeric_cols
+
+# boxplot before cap
+for (col in numeric_cols) {
+  plot = ggplot(credit_risk_df, aes_string(x = "1", y = col)) + 
+    geom_boxplot(fill = "lightblue", outlier.color = "red", outlier.shape = 16, outlier.size = 2) +
+    labs(title = paste("Boxplot of ", col), y = col) +
+    theme_minimal() +
+    coord_flip()
+  
+  ggsave(paste0(col, "_boxplot.png"), plot = plot, width = 12, height = 8, dpi = 300,bg='white')
+}
+
+
+credit_risk_df_capped = credit_risk_df
+
+# drop column that does not require capping
+capped_cols = c('age', 'existing_credits')
+
+for (col in capped_cols) {
+  
+  count_capped = 0
+  
+  # calculate Q1, Q3, and IQR
+  Q1 = quantile(credit_risk_df[[col]], 0.25)
+  Q3 = quantile(credit_risk_df[[col]], 0.75)
+  IQR = Q3 - Q1
+  
+  # calculate lowerbound and upperbound
+  lowerbound = Q1 - 2 * IQR
+  upperbound = Q3 + 2 * IQR
+  
+  # count how many values will be capped
+  count_capped = count_capped + sum(credit_risk_df_capped[[col]] < lowerbound | credit_risk_df_capped[[col]] > upperbound)
+  
+  # cap the outliers with lowerbound and upperbound
+  credit_risk_df_capped[[col]] <- ifelse(credit_risk_df_capped[[col]] < lowerbound, round(lowerbound),
+                             ifelse(credit_risk_df_capped[[col]] > upperbound, round(upperbound), credit_risk_df_capped[[col]]))
+  
+  # print summary
+  print(col)
+  print(paste("Lowerbound:", round(lowerbound)))
+  print(paste("Upperbound:", round(upperbound)))
+  print(paste("Capped Count:", count_capped))
+  cat("\n")
+  
+}
+
+
+# boxplot after cap (blue - outliers that were capped)
+for (col in capped_cols) {
+  # identify outliers in the original data frame
+  outlier_thresholds <- boxplot.stats(credit_risk_df[[col]])$out
+  credit_risk_df$previous_outlier <- credit_risk_df[[col]] %in% outlier_thresholds
+  
+  # identify capped outliers
+  capped_outlier_thresholds <- boxplot.stats(credit_risk_df_capped[[col]])$out
+  credit_risk_df_capped$capped_outlier <- credit_risk_df_capped[[col]] %in% capped_outlier_thresholds
+  
+  # create the boxplot
+  plot <- ggplot(credit_risk_df_capped, aes_string(x = "1", y = col)) +
+    # do not display outliers in the boxplot
+    geom_boxplot(fill = "lightblue", outlier.color = NA) +  
+    # previous outliers as blue dots from credit_risk_df
+    geom_point(data = credit_risk_df[redit_risk_df$previous_outlier, ], aes_string(x = "1", y = col), color = "blue", size = 2) + 
+    # capped outlier as red dots
+    geom_point(data = credit_risk_df_capped[credit_risk_df_capped$capped_outlier, ], aes_string(x = "1", y = col), color = "red", size = 2) +  
+    labs(title = paste("Boxplot of capped", col), y = col) +
+    theme_minimal() +
+    coord_flip()
+  
+  # save the boxplot
+  ggsave(paste0(col, "_cappedboxplot.png"), plot = plot, width = 12, height = 8, dpi = 300, bg = 'white')
+}
