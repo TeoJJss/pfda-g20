@@ -4,7 +4,7 @@ CSV_FILE <- "5. credit_risk_classification.csv" # csv file name
 current_dir <- dirname(rstudioapi::getSourceEditorContext()$path) # get current directory (where R script is stored)
 setwd(current_dir) # Set working directory
 
-# Install packages dynamically RUN ONCE ONLY #
+# Install packages RUN ONCE ONLY #
 required_packages <- c("dplyr", "ggplot2", "tidyverse")
 
 for (pkg in required_packages) {
@@ -28,32 +28,22 @@ selected_cols = c(
 credit_risk_df = credit_risk_df[, selected_cols] # select required
 head(credit_risk_df)
 
+# Check & Remove Duplicates #
+library(dplyr)
+nrow(credit_risk_df)# Show how many records this data set has
+sum(duplicated(credit_risk_df))# Show the count of duplicated records
+nrow(unique(credit_risk_df))# Show the count of unique records
+nrow(distinct(credit_risk_df))# Show the count of distinct records
+
+credit_risk_df<- unique(credit_risk_df)# Save into another version without duplicates
+print(credit_risk_df)
+
+# Check & Handle missing value #
+colSums(is.na(credit_risk_df))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##standardise
+## DATA VALIDATION ##
+# Standardize Data/Format #
 
 #check variable type
 str(credit_risk_df)
@@ -66,10 +56,7 @@ char_cols = c(
 credit_risk_df[char_cols]<-lapply(credit_risk_df[char_cols],tolower) #to turn the data to lowercase
 credit_risk_df[char_cols]<-lapply(credit_risk_df[char_cols],factor)
 
-
-
 #for numerical
-
 #age
 summary(credit_risk_df$age)
 has_decimal<-any(credit_risk_df$age %% 1!=0)
@@ -97,7 +84,7 @@ check_decimal
 check_decimal<-any( credit_risk_df$existing_credits %% 1!=0)
 check_decimal
 
-#check range
+# Check Range #
 age_range<-range(credit_risk_df$age,na.rm = TRUE)
 age_range
 
@@ -107,21 +94,19 @@ ic_range
 ec_range<-range(credit_risk_df$existing_credits,na.rm = TRUE)
 ec_range
 
-#check categories
+# Check Categories #
 levels(credit_risk_df$credit_history)
 levels(credit_risk_df$credit_history)
 levels(credit_risk_df$credit_history)
 levels(credit_risk_df$credit_history)
 
-
-
-## OUTLIER DETECTION & HANDLING ##
-
+# Outliers Detection & Handling #
 # detect outlier for numeric data
 numeric_cols <- names(credit_risk_df)[sapply(credit_risk_df, is.numeric)]
 numeric_cols
 
 # boxplot before cap
+library(ggplot2)
 for (col in numeric_cols) {
   plot = ggplot(credit_risk_df, aes_string(x = "1", y = col)) + 
     geom_boxplot(fill = "lightblue", outlier.color = "red", outlier.shape = 16, outlier.size = 2) +
@@ -183,7 +168,7 @@ for (col in capped_cols) {
     # do not display outliers in the boxplot
     geom_boxplot(fill = "lightblue", outlier.color = NA) +  
     # previous outliers as blue dots from credit_risk_df
-    geom_point(data = credit_risk_df[redit_risk_df$previous_outlier, ], aes_string(x = "1", y = col), color = "blue", size = 2) + 
+    geom_point(data = credit_risk_df[credit_risk_df$previous_outlier, ], aes_string(x = "1", y = col), color = "blue", size = 2) + 
     # capped outlier as red dots
     geom_point(data = credit_risk_df_capped[credit_risk_df_capped$capped_outlier, ], aes_string(x = "1", y = col), color = "red", size = 2) +  
     labs(title = paste("Boxplot of capped", col), y = col) +
@@ -193,3 +178,18 @@ for (col in capped_cols) {
   # save the boxplot
   ggsave(paste0(col, "_cappedboxplot.png"), plot = plot, width = 12, height = 8, dpi = 300, bg = 'white')
 }
+
+
+## DATA ANALYSIS (Individual) ##
+# Name1, TP000001
+
+
+# Name2, TP000002
+
+
+
+# Name3, TP000003
+
+
+
+# Name4, TP000004
