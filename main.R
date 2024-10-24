@@ -95,10 +95,11 @@ ec_range<-range(credit_risk_df$existing_credits,na.rm = TRUE)
 ec_range
 
 # Check Categories #
-levels(credit_risk_df$credit_history)
-levels(credit_risk_df$credit_history)
-levels(credit_risk_df$credit_history)
-levels(credit_risk_df$credit_history)
+levels(df$purpose)
+levels(df$employment)
+levels(df$property_magnitude)
+levels(df$job)
+levels(df$credit_history)
 
 # Outliers Detection & Handling #
 # detect outlier for numeric data
