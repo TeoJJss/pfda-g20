@@ -49,10 +49,6 @@ credit_risk_df = credit_risk_df[, selected_cols] # select required
 head(credit_risk_df)
 
 # Check & Handle missing value #
-<<<<<<< HEAD
-=======
-colSums(is.na(credit_risk_df))
->>>>>>> 1fa2fb5b58277eae80a3af6d4fcda68dbe885a1a
 empty_columns <- credit_risk_df %>%
   select(where(~ all(is.na(.) | . == "")))
 colnames(empty_columns)
