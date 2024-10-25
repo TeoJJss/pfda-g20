@@ -46,6 +46,9 @@ print(credit_risk_df)
 
 # Check & Handle missing value #
 colSums(is.na(credit_risk_df))
+empty_columns <- credit_risk_df %>%
+  select(where(~ all(is.na(.) | . == "")))
+colnames(empty_columns)
 
 
 ## DATA VALIDATION ##
