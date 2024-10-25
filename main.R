@@ -26,13 +26,9 @@ head(credit_risk_df) # check data frame
 
 
 ## DATA CLEANING / PRE-PROCESSING  ##
-# Remove unnecessary columns #
-selected_cols = c(
-  "purpose", "employment", "property_magnitude", "age", "job", 
-  "credit_history", "installment_commitment", "existing_credits", "class"
-  ) # columns required
-credit_risk_df = credit_risk_df[, selected_cols] # select required
-head(credit_risk_df)
+# Remove index column
+colnames(credit_risk_df)
+credit_risk_df["...1"] = NULL;
 
 # Check & Remove Duplicates #
 library(dplyr)
@@ -44,8 +40,18 @@ nrow(distinct(credit_risk_df))# Show the count of distinct records
 credit_risk_df<- unique(credit_risk_df)# Save into another version without duplicates
 print(credit_risk_df)
 
+# Remove unnecessary columns #
+selected_cols = c(
+  "purpose", "employment", "property_magnitude", "age", "job", 
+  "credit_history", "installment_commitment", "existing_credits", "class"
+) # columns required
+credit_risk_df = credit_risk_df[, selected_cols] # select required
+head(credit_risk_df)
+
 # Check & Handle missing value #
-colSums(is.na(credit_risk_df))
+empty_columns <- credit_risk_df %>%
+  select(where(~ all(is.na(.) | . == "")))
+colnames(empty_columns)
 
 
 ## DATA VALIDATION ##
