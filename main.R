@@ -1,12 +1,12 @@
 ## DATA IMPORT  ##
+# Install rstudioapi #
+install.packages("rstudioapi")
+library(rstudioapi)
+
 # Set working environment #
 CSV_FILE <- "5. credit_risk_classification.csv" # csv file name
 current_dir <- dirname(rstudioapi::getSourceEditorContext()$path) # get current directory (where R script is stored)
 setwd(current_dir) # Set working directory
-
-# Install rstudioapi #
-install.packages("rstudioapi")
-library(rstudioapi)
 
 # Install packages RUN ONCE ONLY #
 required_packages <- c("dplyr", "ggplot2", "tidyverse")
