@@ -10,5 +10,5 @@ R Script should all be written in `main.R` file.
 `# get current directory`  
 
 ## Data frame variable
-The original data frame is at the variable `credit_risk_df`.  
-For each individual section, please label with differnet suffix, e.g. `credit_risk_df_jj`.  
+The original data frame is at the variable `credit_risk_df_capped`.  
+For each individual section, please label with differnet suffix, e.g. `credit_risk_df_capped_jj`.  

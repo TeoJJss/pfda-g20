@@ -29,7 +29,7 @@ head(credit_risk_df) # check data frame
 # Remove unnecessary columns #
 selected_cols = c(
   "purpose", "employment", "property_magnitude", "age", "job", 
-  "credit_history", "installment_commitment", "existing_credits"
+  "credit_history", "installment_commitment", "existing_credits", "class"
   ) # columns required
 credit_risk_df = credit_risk_df[, selected_cols] # select required
 head(credit_risk_df)
@@ -186,6 +186,7 @@ for (col in capped_cols) {
   ggsave(paste0(col, "_cappedboxplot.png"), plot = plot, width = 12, height = 8, dpi = 300, bg = 'white')
 }
 
+head(credit_risk_df_capped) # DF for individual component
 
 ## DATA ANALYSIS (Individual) ##
 # Name1, TP000001
