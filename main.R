@@ -4,6 +4,10 @@ CSV_FILE <- "5. credit_risk_classification.csv" # csv file name
 current_dir <- dirname(rstudioapi::getSourceEditorContext()$path) # get current directory (where R script is stored)
 setwd(current_dir) # Set working directory
 
+# Install rstudioapi #
+install.packages("rstudioapi")
+library(rstudioapi)
+
 # Install packages RUN ONCE ONLY #
 required_packages <- c("dplyr", "ggplot2", "tidyverse")
 
@@ -12,6 +16,8 @@ for (pkg in required_packages) {
     install.packages(pkg) # Install the package
   }
 }
+rm(required_packages)
+rm(pkg)
  
 # Read CSV file and save to data frame #
 library(readr) # load from tidyverse
