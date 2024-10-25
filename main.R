@@ -192,7 +192,7 @@ head(credit_risk_df_capped) # DF for individual component
 # Name1, TP000001
 
 
-# Name2, TP000002
+# Chua Song Wen, TP075130
 
 
 
