@@ -195,15 +195,15 @@ for (col in capped_cols) {
 head(credit_risk_df_capped) # DF for individual component
 
 ## DATA ANALYSIS (Individual) ##
-# Name1, TP000001
+# Leong Huey Chian, TP084911
 
 
 # Chua Song Wen, TP075130
 
 
 
-# Name3, TP000003
+# Teo Jun Jia, TP067775
 
 
 
-# Name4, TP000004
+# Isabelle Gwenca Fong, TP077838
