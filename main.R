@@ -1,6 +1,6 @@
 ## DATA IMPORT  ##
 # Install rstudioapi #
-install.packages("rstudioapi")
+# install.packages("rstudioapi")
 library(rstudioapi)
 
 # Set working environment #
@@ -182,7 +182,7 @@ for (col in capped_cols) {
     geom_boxplot(fill = "lightblue", outlier.color = NA) +  
     # previous outliers as blue dots from credit_risk_df
     geom_point(data = credit_risk_df[credit_risk_df$previous_outlier, ], aes_string(x = "1", y = col), color = "blue", size = 2) + 
-    # capped outlier as red dots
+    # present outlier as red dots
     geom_point(data = credit_risk_df_capped[credit_risk_df_capped$capped_outlier, ], aes_string(x = "1", y = col), color = "red", size = 2) +  
     labs(title = paste("Boxplot of capped", col), y = col) +
     theme_minimal() +
@@ -207,3 +207,158 @@ head(credit_risk_df_capped) # DF for individual component
 
 
 # Isabelle Gwenca Fong, TP077838
+credit_risk_df_capped_isabelle = credit_risk_df_capped
+
+# understand the data 
+head(credit_risk_df_capped_isabelle)
+summary(credit_risk_df_capped_isabelle)
+str(credit_risk_df_capped_isabelle)
+
+# convert credit class to factor
+credit_risk_df_capped_isabelle$class <- as.factor(credit_risk_df_capped_isabelle$class)
+
+# Objective 1: To investigate the relationship between property magnitude and credit class
+
+# Distribution Analysis – contingency table and stacked bar plot
+# cross-tabulate property magnitude and credit class
+property_magnitude_credit_class_table = table(credit_risk_df_capped_isabelle$property_magnitude, credit_risk_df_capped_isabelle$class)
+
+print(property_magnitude_credit_class_table)
+
+# stacked bar plot
+property_magnitdue_vs_credit_class_stacked_bar = ggplot(credit_risk_df_capped_isabelle, aes(x = property_magnitude, fill = class)) +
+  geom_bar(position = "fill") +
+  labs(title = "Bivariate Analysis of Property Magnitude vs Credit Class",
+       x = "Property Magnitude",
+       y = "Proportion") +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal()
+
+print(property_magnitdue_vs_credit_class_stacked_bar)
+
+# save the stacked bar chart of property magnitude and credit class
+ggsave("property_magnitdue_vs_credit_class_stacked_bar.png", plot = property_magnitdue_vs_credit_class_stacked_bar, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# Relationship Analysis
+install.packages("DescTools")
+library(DescTools)
+
+# Cramér's V 
+CramerV(property_magnitude_credit_class_table)
+
+# Hypothesis Testing 
+# create binary real estate variable
+credit_risk_df_capped_isabelle$real_estate = ifelse(credit_risk_df_capped_isabelle$property_magnitude == "real estate", "yes", "no")
+credit_risk_df_capped_isabelle$real_estate = factor(credit_risk_df_capped_isabelle$real_estate, levels = c("no", "yes"))
+summary(credit_risk_df_capped_isabelle)
+
+# calculate proportions for each real_estate status
+credit_risk_df_capped_isabelle_summary <- credit_risk_df_capped_isabelle %>%
+  group_by(real_estate, class) %>%
+  tally() %>%å
+  group_by(real_estate) %>%
+  mutate(proportion = n / sum(n),
+         percentage = proportion * 100)
+
+# pie chart for real_estate with percentage
+real_estate_status_vs_credit_class_pie = ggplot(credit_risk_df_capped_isabelle_summary, aes(x = "", y = proportion, fill = class)) +
+  geom_bar(stat = "identity", width = 1) + 
+  coord_polar(theta = "y") + 
+  facet_wrap(~ real_estate) +  
+  labs(title = "Credit Class Distribution by Real Estate Status",
+       fill = "Credit Class") +
+  scale_y_continuous(labels = scales::percent_format()) +  
+  theme_minimal() +
+  theme(axis.text.x = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), position = position_stack(vjust = 0.5), color = "white") 
+
+print(real_estate_status_vs_credit_class_pie)
+
+# save the pie chart of real estate status and credit class
+ggsave("real_estate_status_vs_credit_class_pie.png", plot = real_estate_status_vs_credit_class_pie, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# logistic regression
+logistic_regression_real_estate_model = glm(class ~ real_estate, data = credit_risk_df_capped_isabelle, family = binomial)
+summary(logistic_regression_real_estate_model)
+
+# calculate odds ratios
+exp(coef(logistic_regression_real_estate_model))
+
+# Objective 2: To investigate the relationship between age and credit class
+
+# Distribution Analysis
+# density plot of age by credit class
+age_credit_class_density = ggplot(credit_risk_df_capped_isabelle, aes(x = age, fill = class)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Density Plot of Age by Credit Class (Before Transformation)",
+       x = "Age", y = "Density") +
+  theme_minimal()
+
+print(age_credit_class_density)
+
+# save the density of age and credit class
+ggsave("age_credit_class_density.png", plot = age_credit_class_density, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# Dispersion Analysis – summary stats/variance/standard deviation
+#summary statistics for age by credit class
+summary_stats = aggregate(age ~ class, data = credit_risk_df_capped_isabelle, summary)
+print(summary_stats)
+
+# variance and standard deviation for age by credit class
+dispersion_stats = aggregate(age ~ class, data = credit_risk_df_capped_isabelle, function(x) c(var = var(x), sd = sd(x)))
+print(dispersion_stats)
+
+# Relationship Analysis - Correlation
+# correlation between age and numeric representation of credit class (good=1, bad=0)
+credit_risk_df_capped_isabelle$class_numeric = as.numeric(factor(credit_risk_df_capped_isabelle$class)) - 1
+age_credit_class_correlation = cor(credit_risk_df_capped_isabelle$age, credit_risk_df_capped_isabelle$class_numeric)
+print(age_credit_class_correlation)
+
+str(credit_risk_df_capped_isabelle)
+
+# Hypothesis Testing
+# create a new variable binary age above 35
+credit_risk_df_capped_isabelle$age_above_35 = ifelse(credit_risk_df_capped_isabelle$age > 35, "yes", "no")
+credit_risk_df_capped_isabelle$age_above_35 = factor(credit_risk_df_capped_isabelle$age_above_35, levels = c("no", "yes"))
+summary(credit_risk_df_capped_isabelle)
+
+# calculate proportions for age above 35 
+credit_risk_df_capped_isabelle_summary = credit_risk_df_capped_isabelle %>%
+  group_by(age_above_35, class) %>%
+  tally() %>%
+  group_by(age_above_35) %>%
+  mutate(proportion = n / sum(n),
+         percentage = proportion * 100)
+
+# pie chart for age above 35 with percentage
+age_above_35_vs_credit_class_pie = ggplot(credit_risk_df_capped_isabelle_summary, aes(x = "", y = proportion, fill = class)) +
+  geom_bar(stat = "identity", width = 1) + 
+  coord_polar(theta = "y") + 
+  facet_wrap(~ age_above_35) +  
+  labs(title = "Credit Class Distribution by Age Above 35",
+       fill = "Credit Class") +
+  scale_y_continuous(labels = scales::percent_format()) +  
+  theme_minimal() +
+  theme(axis.text.x = element_blank()) +
+  geom_text(aes(label = paste0(round(percentage, 1), "%")), position = position_stack(vjust = 0.5), color = "white") 
+
+print(age_above_35_vs_credit_class_pie)
+
+# save the pie chart of age above 35 and credit class
+ggsave("age_above_35_vs_credit_class_pie.png", plot = age_above_35_vs_credit_class_pie, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# logistic regression
+logistic_regression_age_above_35_model = glm(class ~ age_above_35, data = credit_risk_df_capped_isabelle, family = binomial)
+summary(logistic_regression_age_above_35_model)
+
+# calculate odds ratios
+exp(coef(logistic_regression_age_above_35_model))
+
+
+# Objective 3: To investigate the interaction effect of property magnitude and age on credit class
+
+#logistic regression model with interactions
+age_above_35_real_estate_interaction_logistic_model = glm(class ~ age_above_35 * real_estate, family = binomial, data = credit_risk_df_capped_isabelle)
+
+summary(age_above_35_real_estate_interaction_logistic_model)
+
