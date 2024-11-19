@@ -194,8 +194,138 @@ for (col in capped_cols) {
 
 head(credit_risk_df_capped) # DF for individual component
 
+
 ## DATA ANALYSIS (Individual) ##
 # Leong Huey Chian, TP084911
+
+#job(character) n  installment_commitment(numeric)
+
+credit_risk_df_capped_leong=credit_risk_df_capped
+credit_risk_df_capped_leong$job=recode(credit_risk_df_capped_leong$job,"high qualif/self emp/mgmt"="high-qualified","unskilled resident"="unskilled","unemp/unskilled non res"="unskilled")
+
+#job
+#summary of job
+nrow(credit_risk_df_capped_leong)
+summary(credit_risk_df_capped_leong$job)
+
+#GRAPH
+#percentage bar plot 1
+a=ggplot(credit_risk_df_capped_leong, aes(x = job, fill = class))
+job1=a+geom_bar(position = "fill")+
+  labs(title = "Credit Classification by Job Skill Category",
+       x="Job Skill Category",
+       y="Credit Classification")+
+  scale_y_continuous(labels = scales::percent)+
+  theme_minimal()
+job1
+
+ggsave("Percentage of job skill vs Credit Risk Classification.png",plot = job1,width = 8,height = 6,bg="white")
+
+#ungrouped bar
+job2=ggplot(credit_risk_df_capped_leong, aes(x = job, fill = class)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Credit Classification by Job Skill Category",
+       x = "Job Skill Category",
+       y = "Number of Customers",
+       fill = "Credit Classification") +
+  theme_minimal()
+ggsave("Bar graph of job skill vs Credit Risk Classification.png",plot = job2,width = 8,height = 6,bg="white")
+job2
+
+job_conti_table=table(credit_risk_df_capped_leong$job,credit_risk_df_capped_leong$class)
+job_conti_table
+job_bad=job_conti_table[,1]
+job_bad
+job_good=job_conti_table[,2]
+job_good
+
+
+create_pie_chart <- function(data, title) {
+  percentages=round(data/sum(data)*100,1)
+# Create a pie chart
+pie(data, 
+      labels = paste(names(data), "\n", percentages,"%"), 
+      main = title, 
+      col = rainbow(length(data)))
+}
+
+# Create pie charts for bad and good job categories
+pie_bad=create_pie_chart(job_bad, "Job Categories for Bad Class")
+pie_good=create_pie_chart(job_good, "Job Categories for Good Class")
+ggsave("Percentage of Job Categories for Good Class.png",plot = pie_good,width = 6,height = 6)
+ggsave("Percentage of Job Categories for Bad Class.png",plot = pie_bad,width = 6,height = 6)
+
+#HYPOTHESIS TESTING
+#change the class to binary (bad=1 , good=0)
+credit_risk_df_capped_leong$class_binary <- ifelse(credit_risk_df_capped_leong$class == "bad", 1, 0)
+
+#Chi-squared test
+job_test=chisq.test(job_conti_table)
+job_test
+
+
+#predict probability
+job_prob=data.frame(job=unique(credit_risk_df_capped_leong$job))
+job_prob
+
+
+predict_job=predict.glm(job_log_model,newdata = job_prob,type = "response")
+job_prob$Predicted_prob=predict_job
+print(job_prob)
+
+
+#INSTALMENT COMMITMENT
+summary(credit_risk_df_capped_leong$installment_commitment)#numeric
+
+#CHART
+ #bar chart
+commit_chart=ggplot(credit_risk_df_capped_leong, aes(x = installment_commitment, fill = class)) +
+  geom_bar(position = "dodge", stat = "count", alpha = 0.7) +
+  labs(title = "Installment Commitment vs Credit Class",
+       x = "Installment Commitment",
+       y = "Count") +
+  theme_minimal()
+ggsave("barchart_commit.png", plot = commit_chart, width = 12, height = 8, dpi = 300, bg = 'white')
+
+#boxplot
+insta=ggplot(credit_risk_df_capped_leong, aes(x = class, y = installment_commitment, fill = class)) +
+  geom_boxplot() +
+  labs(title = "Installment vs Class",
+       x = "class",
+       y = "Installment") +
+  theme_minimal() +
+  scale_fill_manual(values = c("skyblue", "salmon"))
+insta
+ggsave("boxplot_commit.png", plot = insta, width = 12, height = 8, dpi = 300, bg = 'white')
+
+
+#histogram
+c=ggplot(credit_risk_df_capped_leong,aes(x=installment_commitment,fill=class))
+commit_hist=c+geom_histogram(position = "identity",
+                             alpha=0.7,
+                             bins = 30)+
+  labs(title = "Install vs Class",
+       x = "Install",
+       y = "Class") +
+  theme_minimal()
+commit_hist
+ggsave("histogram_.png", plot = commit_hist, width = 12, height = 8, dpi = 300, bg = 'white')
+
+
+#Hypothesis Testing
+
+#logistic regression 
+logistic_model <- glm(class_binary ~ installment_commitment, data = credit_risk_df_capped_leong, family = binomial)
+
+# Print the summary of the model
+summary(logistic_model)
+
+
+
+
+
+
+
 
 
 # Chua Song Wen, TP075130
