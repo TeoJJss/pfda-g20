@@ -744,7 +744,7 @@ print(property_magnitdue_vs_credit_class_stacked_bar)
 ggsave("property_magnitdue_vs_credit_class_stacked_bar.png", plot = property_magnitdue_vs_credit_class_stacked_bar, width = 12, height = 8, dpi = 300, bg = 'white')
 
 # Relationship Analysis
-# install.packages("DescTools")
+install.packages("DescTools")
 library(DescTools)
 
 # Cramér's V 
