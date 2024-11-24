@@ -202,7 +202,7 @@ head(credit_risk_df_capped) # DF for individual component
 
 
 ## DATA ANALYSIS (Individual) ##
-# Leong Huey Chian, TP084911
+# Leong Huey Chian, TP084911 #
 
 #job(character) n  installment_commitment(numeric)
 
@@ -327,18 +327,252 @@ logistic_model <- glm(class_binary ~ installment_commitment, data = credit_risk_
 summary(logistic_model)
 
 
+# Chua Song Wen, TP075130 #
+# Initial Preparation
+credit_risk_df_capped_sw <- credit_risk_df_capped;
+
+# Objective 1
+# Distribution of Purpose - contingency table and pie chart
+table_purpose <- credit_risk_df_capped_sw %>%
+  count(purpose) %>%
+  mutate(percentage = n / nrow(credit_risk_df_capped_sw) * 100)
+print(table_purpose)
+
+piechart_purpose<-ggplot(credit_risk_df_capped_sw, aes(x = "", fill = factor(purpose))) +
+  geom_bar(position = "fill", width = 1) +
+  coord_polar(theta = "y") +
+  labs(title = "Distribution of Purpose",
+       fill = "Purpose") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+print(piechart_purpose)
+ggsave("piechart_purpose.png", plot = piechart_purpose, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# Relationship between Purpose and Class - p-value,contingency table and bar chart
+purpose_vs_class <- table(credit_risk_df_capped_sw$class, credit_risk_df_capped_sw$purpose)
+summary(purpose_vs_class)
+
+table_purpose_vs_class<- credit_risk_df_capped_sw %>%
+  count(purpose, class) %>%
+  group_by(purpose) %>%
+  mutate(percentage = n / sum(n) * 100)
+print(table_purpose_vs_class)
+
+barchart_purpose_vs_class<-ggplot(credit_risk_df_capped_sw, aes(x = purpose, fill = factor(class))) +
+  geom_bar(alpha = 0.7) +
+  labs(title = "Distribution of Purpose by Class",
+       x = "Purpose",
+       y = "Count",
+       fill = "Class") +
+  theme_minimal() +
+  theme() 
+print(barchart_purpose_vs_class)
+ggsave("barchart_purpose_vs_class.png", plot = barchart_purpose_vs_class, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# Purpose Category - base on consumption power - summarize table,proportions and pie chart
+credit_risk_df_capped_sw <- credit_risk_df_capped_sw %>%
+  mutate(
+    purpose_HighConsumptionPower = ifelse(purpose %in% c("used car","new car", "business"), "Yes", "No"),
+    purpose_MediumConsumptionPower = ifelse(purpose %in% c("furniture/equipment", "radio/tv", "education","retraining"), "Yes", "No"),
+    purpose_LowConsumptionPower = ifelse(purpose %in% c("domestic appliance", "repairs", "other"), "Yes", "No"),
+      )
+
+summary_purposeCategory_vs_class <- credit_risk_df_capped_sw %>%
+  mutate(
+    purpose_category = case_when(
+      purpose %in% c("used car","new car", "business") ~ "HighConsumptionPower",
+      purpose %in% c("furniture/equipment", "radio/tv", "education","retraining") ~ "MediumConsumptionPower",
+      purpose %in% c("domestic appliance", "repairs", "other") ~ "LowConsumptionPower"
+    )
+  ) %>%
+  group_by(purpose_category, class) %>%
+  summarize(count = n(), .groups = "drop")
+print(summary_purposeCategory_vs_class)
+
+proportions_purposeCategory_vs_class <- summary_purposeCategory_vs_class %>%
+  group_by(purpose_category) %>%
+  mutate(
+    total = sum(count),
+    proportion = count / total
+  ) %>%
+  arrange(purpose_category, desc(class))
+print(proportions_purposeCategory_vs_class)
+
+piechart_purposeCategory_vs_class<-ggplot(proportions_purposeCategory_vs_class, aes(x = "", y = proportion, fill = class)) +
+  geom_bar(stat = "identity", width = 1, color = "white") + 
+  coord_polar("y", start = 0) +
+  facet_wrap(~purpose_category) + 
+  theme_void() + 
+  labs(
+    title = "Proportion of Good and Bad Credit by Consumption Power Category",
+    fill = "Credit Class"
+  ) +
+  scale_fill_manual(
+    values = c("good" = "#00BFC4", "bad" = "#F8766D"), 
+    labels = c("Bad Credit", "Good Credit")
+  )
+print(piechart_purposeCategory_vs_class)
+ggsave("piechart_purposeCategory_vs_class.png", plot = piechart_purposeCategory_vs_class, width = 12, height = 8, dpi = 300, bg = 'white')
+
+credit_risk_df_capped_sw <- credit_risk_df_capped_sw %>%
+  mutate(
+    purpose_category = case_when(
+      purpose %in% c("new car", "business") ~ "HighConsumptionPower",
+      purpose %in% c("used car","furniture/equipment", "radio/tv", "education") ~ "MediumConsumptionPower",
+      purpose %in% c("domestic appliance", "repairs", "other", "retraining") ~ "LowConsumptionPower"
+    )
+  )
+purposeCategory_vs_class <- table(credit_risk_df_capped_sw$class, credit_risk_df_capped_sw$purpose_category)
+summary(purposeCategory_vs_class)
+
+# Hypothesis Testing - Logistic Regression
+credit_risk_df_capped_sw <- credit_risk_df_capped_sw %>%
+  mutate(
+    class_numeric = ifelse(class == "good", 1, 0)
+  )
+logistic_regression_purpose_MediumConsumptionPower_vs_class <- glm(class_numeric ~ purpose_MediumConsumptionPower, 
+                                     data = credit_risk_df_capped_sw, 
+                                     family = binomial)
+summary(logistic_regression_purpose_MediumConsumptionPower_vs_class)
+
+# Objective 2
+# Distribution of Employment - contingency table andbar chart
+table_employment <- credit_risk_df_capped_sw %>%
+  count(employment) %>%
+  mutate(percentage = n / nrow(credit_risk_df_capped_sw) * 100)
+print(table_employment)
+
+barchart_employment<-ggplot(credit_risk_df_capped, aes(x = employment, fill = factor(employment))) +
+  geom_bar(position = "dodge", alpha = 0.7) +
+  labs(title = "Distribution of Employment Levels by Class",
+       x = "Employment Level",
+       y = "Count",
+       fill = "Employment Level") +
+  theme_minimal()
+print(barchart_employment)
+ggsave("barchart_employment.png", plot = barchart_employment, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# Relationship between Employment and Class - p-value, contingency table, bar chart
+employment_vs_class <- table(credit_risk_df_capped_sw$class, credit_risk_df_capped_sw$employment)
+summary(employment_vs_class)
+
+table_employment_vs_class<- credit_risk_df_capped_sw %>%
+  count(employment,class) %>%
+  group_by(employment) %>%
+  mutate(percentage = n / sum(n) * 100)
+print(table_employment_vs_class)
+
+barchart_employment_vs_class<-ggplot(credit_risk_df_capped, aes(x = employment, fill = factor(class))) +
+  geom_bar(position = "dodge", alpha = 0.7) +
+  labs(title = "Distribution of Employment Levels by Class",
+       x = "Employment",
+       y = "Count",
+       fill = "Credit Class") +
+  theme_minimal()
+print(barchart_employment_vs_class)
+ggsave("barchart_employment_vs_class.png", plot = barchart_employment_vs_class, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# Employment Category - base on duration - summarize table,proportions and pie chart
+credit_risk_df_capped_sw <- credit_risk_df_capped_sw %>%
+  mutate(
+    employment_ShortTerm = ifelse(employment == "<1", "Yes", "No"),
+    employment_MediumTerm = ifelse(employment %in% c("1<=x<4", "4<=x<7"), "Yes", "No"),
+    employment_LongTerm = ifelse(employment == ">=7", "Yes", "No"),
+    employment_IsUnemployed = ifelse(employment == "unemployed", "Yes", "No")
+  )
+
+summary_employmentCategory_vs_class <- credit_risk_df_capped_sw %>%
+  mutate(
+    employment_category = case_when(
+      employment %in% c("<1") ~ "Short-Term",
+      employment %in% c("1<=x<4","4<=x<7") ~ "Medium-Term",
+      employment %in% c(">=7") ~ "Long-Term",
+      employment %in% c("unemployed") ~ "IsUnemployed"
+    )
+  ) %>%
+  group_by(employment_category, class) %>%
+  summarize(count = n(), .groups = "drop")
+print(summary_employmentCategory_vs_class)
+
+proportions_employmentCategory_vs_class <- summary_employmentCategory_vs_class %>%
+  group_by(employment_category) %>%
+  mutate(
+    total = sum(count),
+    proportion = count / total
+  ) %>%
+  arrange(employment_category, desc(class))
+print(proportions_employmentCategory_vs_class)
+
+piechart_employmentCategory_vs_class<-ggplot(proportions_employmentCategory_vs_class, aes(x = "", y = proportion, fill = class)) +
+  geom_bar(stat = "identity", width = 1, color = "white") + 
+  coord_polar("y", start = 0) +
+  facet_wrap(~employment_category) + 
+  theme_void() + 
+  labs(
+    title = "Proportion of Good and Bad Credit by Employment Duration",
+    fill = "Credit Class"
+  ) +
+  scale_fill_manual(
+    values = c("good" = "#00BFC4", "bad" = "#F8766D"), 
+    labels = c("Bad Credit", "Good Credit")
+  )
+print(piechart_employmentCategory_vs_class)
+ggsave("piechart_employmentCategory_vs_class.png", plot = piechart_employmentCategory_vs_class, width = 12, height = 8, dpi = 300, bg = 'white')
+
+credit_risk_df_capped_sw <- credit_risk_df_capped_sw %>%
+  mutate(
+    employment_category = case_when(
+      employment %in% c("<1") ~ "Short-Term",
+      employment %in% c("1<=x<4","4<=x<7") ~ "Medium-Term",
+      employment %in% c(">=7") ~ "Long-Term",
+      employment %in% c("unemployed") ~ "IsUnemployed"
+    )
+  )
+employmentCategory_vs_class <- table(credit_risk_df_capped_sw$class, credit_risk_df_capped_sw$employment_category)
+summary(employmentCategory_vs_class)
+
+# Hypothesis Testing - Logistic Regression
+logistic_regression_employment_LongTerm_vs_class <- glm(class_numeric ~ employment_LongTerm, 
+                                                                   data = credit_risk_df_capped_sw, 
+                                                                   family = binomial)
+summary(logistic_regression_employment_LongTerm_vs_class)
+
+# Objective 3
+# Relationship between Employment Category and Purpose Category - contingency table, bar chart
+table_employmentCategory_vs_purposeCategory<- credit_risk_df_capped_sw %>%
+  count(employment_category,purpose_category) %>%
+  group_by(employment_category) %>%
+  mutate(percentage = n / sum(n) * 100)
+print(table_employmentCategory_vs_purposeCategory)
+
+barchart_employmentCategory_vs_purposeCategory<-ggplot(credit_risk_df_capped_sw, aes(x = employment_category, fill = factor(purpose_category))) +
+  geom_bar(position = "dodge", alpha = 0.7) +
+  labs(
+    title = "Distribution of Employment by Purpose",
+    x = "Purpose",
+    y = "Count",
+    fill = "Employment"
+  ) +
+  theme_minimal()
+print(barchart_employmentCategory_vs_purposeCategory)
+ggsave("barchart_employmentCategory_vs_purposeCategory.png", plot = barchart_employmentCategory_vs_purposeCategory, width = 12, height = 8, dpi = 300, bg = 'white')
+
+# Hypothesis Testing - Chi Square Test
+table_employmentCategory_vs_purposeCategory<-table(credit_risk_df_capped_sw$employment_category,credit_risk_df_capped_sw$purpose_category)
+chisq.test(table_employmentCategory_vs_purposeCategory)
+
+# Objective 4
+# Hypothesis Testing - Logistic Regression
+logistic_model_purposeMediumConsumptionPower_vs_employmentLongTerm_vs_class <- glm(class_numeric ~ purpose_MediumConsumptionPower*employment_LongTerm, 
+                                            data = credit_risk_df_capped_sw, 
+                                            family = binomial)
+summary(logistic_model_purposeMediumConsumptionPower_vs_employmentLongTerm_vs_class)
 
 
-
-
-
-
-
-# Chua Song Wen, TP075130
-
-
-
-# Objective 3: To examine how the credit history and existing credits affect the resulting credit class. - Teo Jun Jia TP067775 # 
+# Teo Jun Jia TP067775 # 
 credit_risk_df_capped_jj = credit_risk_df_capped[,c("credit_history", "existing_credits", "class")]
 head(credit_risk_df_capped_jj)
 
