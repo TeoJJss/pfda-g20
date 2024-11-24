@@ -4,7 +4,7 @@
 # Isabelle Gwenca Fong, TP077838
 
 ## DATA IMPORT  ##
-# Install rstudioapi #
+# Install rstudioapi (DO ONCE ONLY) #
 # install.packages("rstudioapi")
 library(rstudioapi)
 
@@ -706,7 +706,7 @@ ggplot(credit_risk_df_capped_jj, aes(x = predicted_probabilities, fill = as.fact
   theme_minimal()
 
 
-# Isabelle Gwenca Fong, TP077838
+# Isabelle Gwenca Fong, TP077838 #
 credit_risk_df_capped_isabelle = credit_risk_df_capped
 
 # understand the data 
