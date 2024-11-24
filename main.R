@@ -668,6 +668,7 @@ credits_model <- glm(class ~ credit_history + existing_credits, data = credit_ri
 summary(credits_model)
 
 # visualize logistic regression model using coefficient plot
+library(broom)
 model_coeffs <- tidy(credits_model, conf.int = TRUE)
 ggplot(model_coeffs, aes(x = estimate, y = term, xmin = conf.low, xmax = conf.high)) +
   geom_point() +
@@ -740,7 +741,7 @@ print(property_magnitdue_vs_credit_class_stacked_bar)
 ggsave("property_magnitdue_vs_credit_class_stacked_bar.png", plot = property_magnitdue_vs_credit_class_stacked_bar, width = 12, height = 8, dpi = 300, bg = 'white')
 
 # Relationship Analysis
-install.packages("DescTools")
+# install.packages("DescTools")
 library(DescTools)
 
 # Cramér's V 
@@ -755,7 +756,7 @@ summary(credit_risk_df_capped_isabelle)
 # calculate proportions for each real_estate status
 credit_risk_df_capped_isabelle_summary <- credit_risk_df_capped_isabelle %>%
   group_by(real_estate, class) %>%
-  tally() %>%å
+  tally() %>%
   group_by(real_estate) %>%
   mutate(proportion = n / sum(n),
          percentage = proportion * 100)
