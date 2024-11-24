@@ -268,6 +268,7 @@ job_test
 job_prob=data.frame(job=unique(credit_risk_df_capped_leong$job))
 job_prob
 
+job_log_model<-glm(class_binary~job,family = binomial,data = credit_risk_df_capped_leong)
 
 predict_job=predict.glm(job_log_model,newdata = job_prob,type = "response")
 job_prob$Predicted_prob=predict_job
