@@ -866,3 +866,50 @@ age_above_35_real_estate_interaction_logistic_model = glm(class ~ age_above_35 *
 
 summary(age_above_35_real_estate_interaction_logistic_model)
 
+
+## GROUP HYPOTHESIS ##
+# create new data set with all the variables in the group hypothesis
+age_above_35 <- select(credit_risk_df_capped_isabelle, age_above_35)
+real_estate <- select(credit_risk_df_capped_isabelle, real_estate)
+credit_history <- select(credit_risk_df_capped_jj, credit_history)
+existing_credits <- select(credit_risk_df_capped_jj, existing_credits)
+installment_commitment <- select(credit_risk_df_capped_leong, installment_commitment)
+purpose_MediumConsumptionPower <- select(credit_risk_df_capped_sw, purpose_MediumConsumptionPower)
+employment_LongTerm <- select(credit_risk_df_capped_sw, employment_LongTerm)
+class <- select(credit_risk_df_capped_isabelle, class)
+
+credit_risk_df_group = cbind(age_above_35, real_estate, credit_history, existing_credits, installment_commitment, purpose_MediumConsumptionPower, employment_LongTerm, class)
+
+head(credit_risk_df_group)
+str(credit_risk_df_group)
+
+credit_risk_df_group$installment_commitment <- as.factor(credit_risk_df_group$installment_commitment)
+str(credit_risk_df_group)
+credit_risk_df_group$purpose_MediumConsumptionPower <- as.factor(credit_risk_df_group$purpose_MediumConsumptionPower)
+credit_risk_df_group$employment_LongTerm <- as.factor(credit_risk_df_group$employment_LongTerm)
+
+levels(credit_risk_df_group$credit_history)
+levels(credit_risk_df_group$existing_credits)
+levels(credit_risk_df_group$installment_commitment)
+
+# recode credit_history into two levels: "All Paid" or "Not All Paid"
+credit_risk_df_group$credit_history <- ifelse(credit_risk_df_group$credit_history %in% c("all paid", "existing paid"), "All Paid", "Not All Paid")
+credit_risk_df_group$credit_history <- factor(credit_risk_df_group$credit_history, levels = c("Not All Paid", "All Paid"))
+
+# recode installment_commitment to "More than 2" or "Not More than 2"
+credit_risk_df_group$installment_commitment <- ifelse(credit_risk_df_group$installment_commitment %in% levels(credit_risk_df_group$installment_commitment)[as.numeric(credit_risk_df_group$installment_commitment) > 2], "More than 2", "Not More than 2")
+credit_risk_df_group$installment_commitment <- factor(credit_risk_df_group$installment_commitment, levels = c("Not More than 2", "More than 2"))
+
+# recode existing_credits to "1" or "Not 1"
+credit_risk_df_group$existing_credits <- ifelse(credit_risk_df_group$existing_credits == 1, "1", "Not 1")
+credit_risk_df_group$existing_credits <- factor(credit_risk_df_group$existing_credits, c("Not 1", "1"))
+
+str(credit_risk_df_group)
+
+# logistic regression model - interaction
+group_interaction_logistic_model <- glm(class ~ purpose_MediumConsumptionPower * employment_LongTerm * age_above_35 * real_estate + existing_credits * installment_commitment * credit_history, family = binomial, data = credit_risk_df_group)
+
+summary(group_interaction_logistic_model)
+
+
+
