@@ -12,3 +12,9 @@ R Script should all be written in `main.R` file.
 ## Data frame variable
 The original data frame is at the variable `credit_risk_df_capped`.  
 For each individual section, please label with differnet suffix, e.g. `credit_risk_df_capped_jj`.  
+
+## Credits
+- <a href="https://github.com/IsabelleFong">Isabelle Fong</a>
+- <a href="https://github.com/TeoJJss">Teo Jun Jia</a>
+- <a href="https://github.com/LeongHC">Leong Huey Chian</a>
+- <a href="https://github.com/qynnn">Chua Song Wen</a>
